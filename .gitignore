@@ -1,0 +1,31 @@
+# --- Build output -----------------------------------------------------------
+*.iml
+.gradle/
+build/
+captures/
+.cxx/
+.kotlin/
+
+# --- Machine-specific: MUST stay untracked ----------------------------------
+# local.properties holds each developer's own Android SDK path.
+local.properties
+
+# --- Signing / secrets: never commit these ----------------------------------
+*.jks
+*.keystore
+keystore.properties
+secrets.properties
+google-services.json
+.env
+
+# --- IDE noise --------------------------------------------------------------
+# Everything under .idea is ignored except the few files worth sharing,
+# which are re-included below. This is what stops "phantom" merge conflicts.
+.idea/*
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/.gitignore
+
+# --- OS ---------------------------------------------------------------------
+.DS_Store
+Thumbs.db
