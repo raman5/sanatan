@@ -29,3 +29,6 @@ google-services.json
 # --- OS ---------------------------------------------------------------------
 .DS_Store
 Thumbs.db
+
+# VS Code (Maneesha)
+.vscode/

@@ -1,6 +1,8 @@
 package com.sanatan.app
 
 import com.sanatan.app.data.model.BirthDetails
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -18,7 +20,8 @@ class BirthDetailsTest {
             longitude = 82.9739,
             timeZoneOffsetMinutes = 330
         )
-        val decoded = Json.decodeFromString<BirthDetails>(Json.encodeToString(original))
+        val json = Json.encodeToString(original)
+        val decoded = Json.decodeFromString<BirthDetails>(json)
         assertEquals(original, decoded)
     }
 }
