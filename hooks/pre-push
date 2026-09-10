@@ -1,0 +1,33 @@
+#!/bin/sh
+# Refuses a direct push to main. GitHub Free can't enforce this on a private
+# repo, so we enforce it locally on both machines instead.
+#
+# Enable once per clone:   git config core.hooksPath hooks
+# Deliberate override:     ALLOW_PUSH_MAIN=1 git push origin main
+
+protected_branch="main"
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+    case "$remote_ref" in
+        refs/heads/"$protected_branch")
+            if [ "$ALLOW_PUSH_MAIN" = "1" ]; then
+                echo "pre-push: ALLOW_PUSH_MAIN=1 set - allowing push to $protected_branch."
+                exit 0
+            fi
+            echo ""
+            echo "  BLOCKED: direct push to '$protected_branch'."
+            echo ""
+            echo "  Work on a branch and open a pull request instead:"
+            echo ""
+            echo "      git checkout -b feature/your-thing"
+            echo "      git push -u origin feature/your-thing"
+            echo ""
+            echo "  See CONTRIBUTING.md. To override on purpose:"
+            echo "      ALLOW_PUSH_MAIN=1 git push origin $protected_branch"
+            echo ""
+            exit 1
+            ;;
+    esac
+done
+
+exit 0

@@ -77,3 +77,20 @@ Bump navigation-compose to 2.8.4
 For debugging together in real time, use Android Studio's **Code With Me**
 (Tools > Code With Me). One of you hosts, the other joins by link and edits
 the same files live. Use it for hard bugs - Git stays the source of truth.
+
+## Enable the push guard (once per clone)
+
+```bash
+git config core.hooksPath hooks
+```
+
+GitHub Free cannot enforce branch protection on a private repo, so
+`hooks/pre-push` does it locally instead: it refuses a direct push to `main`
+and tells you to use a branch. Both of us need to run the command above -
+Git will not use a repo's hooks until you point it at them.
+
+To override deliberately (rare, and say so in chat first):
+
+```bash
+ALLOW_PUSH_MAIN=1 git push origin main
+```
