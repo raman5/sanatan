@@ -3,6 +3,13 @@
 Two developers, one codebase. These rules exist so we almost never hit a
 merge conflict, and so `main` always builds.
 
+> **Heads up, Raman:** this repo was repurposed from the Sanatan astrology
+> app to the Bhakti devotional-content app per the product PRD, on branch
+> `feature/bhakti-mvp`. `feature/kundli/` and `feature/astrologer/` were
+> removed (still in git history) since they're outside the Bhakti scope.
+> Please review before this merges to `main` - talk to Maneesha about
+> whether/where astrology fits the new direction.
+
 ## The loop
 
 ```bash
@@ -30,14 +37,16 @@ merging". That makes the rule real instead of a promise.
 
 ## Who owns what
 
-Split by folder, so we rarely open the same file.
+Split by folder, so we rarely open the same file. Post-pivot, this table
+needs a fresh split between the two of you - the rows below are a starting
+point, not a final answer.
 
 | Area | Owner |
 |---|---|
-| `feature/home/`, `feature/panchang/`, `feature/mantra/` | Maneesha |
-| `feature/kundli/`, `feature/astrologer/` | Raman |
-| `data/model/Mantra.kt`, mantra + panchang repositories | Maneesha |
-| `data/model/BirthDetails.kt`, kundli repository, AI client | Raman |
+| `feature/home/`, `feature/splash/`, `feature/auth/`, `feature/paywall/`, `feature/payment/` | Maneesha |
+| `feature/explore/`, `feature/search/`, `feature/favourites/`, `feature/profile/` | Raman |
+| `data/model/`, `data/repository/`, `core/session/`, `core/di/` | Shared - coordinate before editing |
+| `notifications/` | Raman |
 
 Swap any of these whenever you like - just update this table in the same PR.
 

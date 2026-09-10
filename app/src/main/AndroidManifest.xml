@@ -3,8 +3,10 @@
 
     <!-- SHARED FILE: announce changes here before merging. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".BhaktiApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,17 +14,25 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Sanatan">
+        android:theme="@style/Theme.Bhakti">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Sanatan">
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Bhakti">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Local reminder notifications (morning/evening/mantra/status/festival). Alarms
+             don't survive a reboot yet - add a BOOT_COMPLETED receiver that re-schedules
+             from SessionManager's saved prefs before shipping. -->
+        <receiver
+            android:name=".notifications.ReminderReceiver"
+            android:exported="false" />
     </application>
 </manifest>
