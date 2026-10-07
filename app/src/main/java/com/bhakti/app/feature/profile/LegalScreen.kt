@@ -35,5 +35,23 @@ fun LegalScreen(navController: NavHostController) {
                 "disclosures - before this app is published.",
             style = MaterialTheme.typography.bodyMedium
         )
+
+        Text(
+            "Audio credits",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
+        )
+        Text(
+            "\"Shri Vyadeshwar Aarti\" by Gsmodak, via Wikimedia Commons, " +
+                "licensed under CC BY-SA 3.0 (creativecommons.org/licenses/by-sa/3.0). " +
+                "Used for the Shiva bhajan.",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            "\"Aarti Shri Radha Govind Dev Ji\" (Jaipur), via Wikimedia Commons, " +
+                "dedicated to the public domain under CC0 1.0. Used for the Radha bhajan.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }

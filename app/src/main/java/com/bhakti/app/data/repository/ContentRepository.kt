@@ -3,22 +3,23 @@ package com.bhakti.app.data.repository
 import com.bhakti.app.data.model.Bhajan
 import com.bhakti.app.data.model.ContentType
 import com.bhakti.app.data.model.Deity
+import com.bhakti.app.data.model.DeityPortrait
 import com.bhakti.app.data.model.DevotionalContent
 import com.bhakti.app.data.model.Festival
 import com.bhakti.app.data.model.Mantra
 import com.bhakti.app.data.model.StatusMediaType
+import com.bhakti.app.data.model.SubscriptionPlan
 import com.bhakti.app.data.model.Wallpaper
 import com.bhakti.app.data.model.WhatsAppStatus
 import kotlinx.coroutines.delay
 
 data class SearchResults(
     val wallpapers: List<Wallpaper>,
-    val bhajans: List<Bhajan>,
     val mantras: List<Mantra>,
     val statuses: List<WhatsAppStatus>
 ) {
     val isEmpty: Boolean
-        get() = wallpapers.isEmpty() && bhajans.isEmpty() && mantras.isEmpty() && statuses.isEmpty()
+        get() = wallpapers.isEmpty() && mantras.isEmpty() && statuses.isEmpty()
 }
 
 /**
@@ -40,6 +41,19 @@ interface ContentRepository {
 
     suspend fun byId(type: ContentType, id: String): DevotionalContent?
     suspend fun search(query: String): SearchResults
+
+    /**
+     * Every deity's own portrait art in one call - deliberately bulk (one
+     * Firestore collection read) rather than per-deity, since every caller
+     * (deity grids, Home's deity row) needs all 15 at once, not just one.
+     */
+    suspend fun deityPortraits(): Map<Deity, DeityPortrait>
+
+    /** The pooja shrine's bell sound. Null falls back to the bundled raw resource. */
+    suspend fun bellSoundUrl(): String?
+
+    /** Subscription pricing/labels - configurable without a release so prices can change freely. */
+    suspend fun subscriptionPlans(): List<SubscriptionPlan>
 }
 
 class FakeContentRepository : ContentRepository {
@@ -97,7 +111,6 @@ class FakeContentRepository : ContentRepository {
         if (q.isEmpty()) {
             return SearchResults(
                 wallpapers = allWallpapers.filter { it.featured },
-                bhajans = allBhajans.sortedByDescending { it.playCount }.take(5),
                 mantras = allMantras.take(5),
                 statuses = allStatuses.sortedByDescending { it.shareCount }.take(5)
             )
@@ -110,7 +123,6 @@ class FakeContentRepository : ContentRepository {
         }
         return SearchResults(
             wallpapers = allWallpapers.filter { titleOrDeityMatches(it.title, it.deity, it.tags) },
-            bhajans = allBhajans.filter { titleOrDeityMatches(it.title, it.deity) },
             mantras = allMantras.filter { titleOrDeityMatches(it.title, it.deity, listOf(it.purpose, it.category)) },
             statuses = allStatuses.filter { titleOrDeityMatches(it.title, it.deity, listOf(it.category)) }
         )
@@ -122,4 +134,10 @@ class FakeContentRepository : ContentRepository {
         val dayOfYear = java.time.LocalDate.now().dayOfYear
         return list[dayOfYear % list.size]
     }
+
+    override suspend fun deityPortraits(): Map<Deity, DeityPortrait> =
+        Deity.entries.associateWith { DeityPortrait() }
+
+    override suspend fun bellSoundUrl(): String? = null
+    override suspend fun subscriptionPlans(): List<SubscriptionPlan> = SubscriptionPlan.ALL
 }

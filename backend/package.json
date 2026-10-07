@@ -1,0 +1,13 @@
+{
+  "name": "bhakti-content-migration",
+  "private": true,
+  "version": "1.0.0",
+  "description": "One-off script that uploads Bhakti's bundled images/audio + catalogue data to Firebase Storage + Firestore, so the app can read the same content from the backend instead of local resources.",
+  "type": "commonjs",
+  "scripts": {
+    "migrate": "node migrate-content.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0"
+  }
+}

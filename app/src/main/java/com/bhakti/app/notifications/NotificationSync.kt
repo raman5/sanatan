@@ -28,7 +28,7 @@ suspend fun syncScheduledReminders(
     }
 
     apply(session.notifMorning, ReminderIds.MORNING, 7, 0, "Good morning, Bhakt", "Start your day with a moment of devotion.", Routes.HOME)
-    apply(session.notifEvening, ReminderIds.EVENING, 18, 30, "Evening Aarti", "It's time for today's aarti.", Routes.BHAJAN_LIST)
+    apply(session.notifEvening, ReminderIds.EVENING, 18, 30, "Evening Pooja", "It's time for your evening pooja.", Routes.POOJA_DEITY_SELECT)
     apply(session.notifMantra, ReminderIds.MANTRA_OF_DAY, 9, 0, "Today's Mantra", "A new mantra is ready for you.", Routes.MANTRA_LIST)
     apply(session.notifStatus, ReminderIds.STATUS_OF_DAY, 20, 0, "New Status Ready", "Today's devotional status is ready to share.", Routes.STATUS_LIST)
 

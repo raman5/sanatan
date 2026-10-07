@@ -45,16 +45,13 @@ fun FavouritesScreen(navController: NavHostController) {
             Text("Loading...", style = MaterialTheme.typography.bodyMedium)
         } else if (current.isEmpty) {
             Text(
-                "Nothing favourited yet. Tap the heart on any wallpaper, bhajan, mantra or status to save it here.",
+                "Nothing favourited yet. Tap the heart on any wallpaper, mantra or status to save it here.",
                 style = MaterialTheme.typography.bodyMedium
             )
         } else {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 current.wallpapers.forEach { w ->
                     FavouriteRow(w.title, w.deity.displayName) { navController.navigate(Routes.contentDetail(ContentType.WALLPAPER, w.id)) }
-                }
-                current.bhajans.forEach { b ->
-                    FavouriteRow(b.title, b.deity.displayName) { navController.navigate(Routes.contentDetail(ContentType.BHAJAN, b.id)) }
                 }
                 current.mantras.forEach { m ->
                     FavouriteRow(m.title, m.deity.displayName) { navController.navigate(Routes.contentDetail(ContentType.MANTRA, m.id)) }

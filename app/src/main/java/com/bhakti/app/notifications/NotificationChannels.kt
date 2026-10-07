@@ -14,7 +14,7 @@ object NotificationChannels {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
             NotificationChannel(DAILY_DEVOTIONAL, "Daily devotional reminders", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Morning, evening aarti, mantra and status reminders"
+                description = "Morning, evening pooja, mantra and status reminders"
             }
         )
         manager.createNotificationChannel(

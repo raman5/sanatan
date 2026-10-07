@@ -47,7 +47,7 @@ fun SearchScreen(navController: NavHostController) {
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            label = { Text("Search deities, mantras, bhajans, status...") },
+            label = { Text("Search deities, mantras, status...") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -69,14 +69,6 @@ fun SearchScreen(navController: NavHostController) {
                         current.wallpapers.forEach { w ->
                             SearchRow(w.title, w.deity.displayName) {
                                 navController.navigate(Routes.contentDetail(ContentType.WALLPAPER, w.id))
-                            }
-                        }
-                    }
-                    if (current.bhajans.isNotEmpty()) {
-                        SearchSection("Bhajans")
-                        current.bhajans.forEach { b ->
-                            SearchRow(b.title, b.deity.displayName) {
-                                navController.navigate(Routes.contentDetail(ContentType.BHAJAN, b.id))
                             }
                         }
                     }

@@ -67,7 +67,7 @@ fun StatusListScreen(navController: NavHostController) {
                         navController.navigate(Routes.contentDetail(ContentType.STATUS, status.id))
                     }
                 ) {
-                    PlaceholderArt(deity = status.deity, label = status.title, aspectRatio = 3f / 4f)
+                    PlaceholderArt(deity = status.deity, label = status.title, aspectRatio = 3f / 4f, imageVariant = status.imageVariant, imageUrl = status.imageUrl)
                     Text(
                         "${status.title} • ${status.mediaType.name.lowercase()}",
                         style = MaterialTheme.typography.labelSmall,

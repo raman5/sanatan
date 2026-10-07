@@ -22,15 +22,17 @@ fun HelpSupportScreen(navController: NavHostController) {
         }
         Text("Help & Support", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 12.dp))
         Text(
-            "Questions about your subscription, AutoPay mandate or content? " +
-                "Write to us at support@bhaktiapp.example and we'll get back within 24 hours.",
+            "Questions, feedback or content suggestions? " +
+                "Write to us at maneeshanegi30@gmail.com and we'll get back to you soon.",
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
             "\nFrequently asked\n\n" +
-                "• How do I cancel AutoPay? Go to Profile > Subscription and cancel the mandate from your UPI app.\n" +
-                "• Why was I charged ₹1? That's the trial verification charge before your plan's regular billing begins.\n" +
-                "• Can I change my language later? Yes, anytime from Profile > Language.",
+                "• Is Bhakti free? Yes - every feature is free to use right now.\n" +
+                "• Why isn't the chant spoken in Hindi? Install the Hindi voice for Google Text-to-Speech " +
+                "(Settings > Accessibility > Text-to-speech) and turn the speaker on in Naam Japa or Mantras.\n" +
+                "• Where is my progress saved? On this phone. Uninstalling the app or clearing its data resets it.\n" +
+                "• Can I choose what's in my routine? Yes - tap the pencil icon on the Your Routine card on Home.",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 12.dp)
         )

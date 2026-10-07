@@ -34,12 +34,31 @@ internal object SampleContent {
         Deity.LAKSHMI to MantraSeed("Prosperity & abundance", "ॐ श्रीं महालक्ष्म्यै नमः", "Om Shreem Mahalakshmiyei Namah", "Salutations to Lakshmi, goddess of prosperity."),
         Deity.SARASWATI to MantraSeed("Knowledge & wisdom", "ॐ ऐं सरस्वत्यै नमः", "Om Aim Saraswatyai Namah", "Salutations to Saraswati, goddess of knowledge and the arts."),
         Deity.VISHNU to MantraSeed("Balance & protection", "ॐ नमो नारायणाय", "Om Namo Narayanaya", "Salutations to Vishnu, the preserver."),
-        Deity.RADHA to MantraSeed("Devotion & love", "राधे राधे", "Radhe Radhe", "A chant invoking Radha's devotion to Krishna."),
+        Deity.RADHA to MantraSeed("Devotion & love", "ॐ ह्रीं श्रीं राधिकायै नमः", "Om Hrim Shrim Radhikaye Namah", "Salutations to Shri Radhika, invoked with the bija syllables Hrim and Shrim for divine love and grace."),
         Deity.SAI_BABA to MantraSeed("Faith & patience", "ॐ साईं राम", "Om Sai Ram", "A chant of faith invoking Sai Baba's blessings."),
         Deity.JAGANNATH to MantraSeed("Devotion & surrender", "जय जगन्नाथ", "Jai Jagannath", "An invocation of Jagannath, Lord of the Universe."),
         Deity.SHANI_DEV to MantraSeed("Justice & resilience", "ॐ शं शनैश्चराय नमः", "Om Sham Shanaishcharaya Namah", "Salutations to Shani Dev, who rewards discipline and patience."),
         Deity.KALI to MantraSeed("Strength & transformation", "ॐ क्रीं कालिकायै नमः", "Om Kreem Kalikayei Namah", "Salutations to Kali, the fierce protective mother."),
         Deity.BALAJI to MantraSeed("Devotion & fulfilment", "ॐ नमो वेंकटेशाय", "Om Namo Venkatesaya", "Salutations to Balaji (Venkateswara), fulfiller of devotees' wishes.")
+    )
+
+    // Short bold exclamations for WhatsApp status greetings - distinct from the chant in mantraSeeds.
+    private val greetings: Map<Deity, String> = mapOf(
+        Deity.SHIVA to "ॐ नमः शिवाय",
+        Deity.KRISHNA to "जय श्री कृष्णा",
+        Deity.RAM to "जय श्री राम",
+        Deity.HANUMAN to "जय हनुमान",
+        Deity.GANESH to "जय गणेश",
+        Deity.DURGA to "जय माँ दुर्गा",
+        Deity.LAKSHMI to "जय माँ लक्ष्मी",
+        Deity.SARASWATI to "जय माँ सरस्वती",
+        Deity.VISHNU to "जय श्री हरि",
+        Deity.RADHA to "राधे राधे",
+        Deity.SAI_BABA to "ॐ साईं राम",
+        Deity.JAGANNATH to "जय जगन्नाथ",
+        Deity.SHANI_DEV to "जय शनि देव",
+        Deity.KALI to "जय माँ काली",
+        Deity.BALAJI to "जय बालाजी"
     )
 
     fun buildWallpapers(): List<Wallpaper> = Deity.entries.flatMapIndexed { deityIdx, deity ->
@@ -54,7 +73,8 @@ internal object SampleContent {
                 festival = if (idx % 5 == 0) "Featured Festival" else null,
                 style = styles[idx % styles.size],
                 tags = listOf(deity.displayName, themes[idx % themes.size], styles[idx % styles.size]),
-                featured = i == 0
+                featured = i == 0,
+                imageVariant = i
             )
         }
     }
@@ -66,7 +86,8 @@ internal object SampleContent {
             deity = deity,
             category = bhajanCategories[idx % bhajanCategories.size],
             singer = "Various Artists",
-            durationSec = 180 + (idx * 17) % 240,
+            // Short clips (spoken recitation, not a full sung track)
+            durationSec = 3 + idx % 4,
             playCount = 1000 + idx * 137,
             featured = idx % 4 == 0
         )
@@ -99,7 +120,11 @@ internal object SampleContent {
                 mediaType = mediaType,
                 category = statusCategories[idx % statusCategories.size],
                 caption = "Jai ${deity.displayName}! Sharing blessings for your day.",
-                shareCount = 200 + idx * 41
+                greeting = greetings.getValue(deity),
+                // Every second status also carries the deity's short chant as a spiritual message.
+                shloka = if (i == 1) mantraSeeds.getValue(deity).devanagari else null,
+                shareCount = 200 + idx * 41,
+                imageVariant = i
             )
         }
     }

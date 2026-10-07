@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,90 +19,90 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bhakti.app.core.di.LocalAppContainer
 import com.bhakti.app.core.navigation.Routes
+import com.bhakti.app.data.model.AuthMethod
+import com.bhakti.app.data.model.User
 import kotlinx.coroutines.launch
+import java.util.UUID
 
+/**
+ * First-run welcome. Everything the app tracks lives on the phone, so there's no
+ * account to create - we only ask what to call the user. Real sign-in comes back
+ * alongside paid subscriptions.
+ */
 @Composable
 fun AuthScreen(navController: NavHostController) {
     val container = LocalAppContainer.current
     val scope = rememberCoroutineScope()
 
-    var phone by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var name by remember { mutableStateOf("") }
+    var saving by remember { mutableStateOf(false) }
 
-    fun goToPaywall() {
-        navController.navigate(Routes.PAYWALL) { popUpTo(Routes.AUTH) { inclusive = true } }
+    fun begin() {
+        if (saving) return
+        saving = true
+        scope.launch {
+            container.sessionManager.signIn(
+                User(
+                    id = "local-${UUID.randomUUID()}",
+                    displayName = name.trim().ifBlank { "Bhakt" },
+                    email = null,
+                    phone = null,
+                    authMethod = AuthMethod.LOCAL,
+                    isNewAccount = true
+                )
+            )
+            navController.navigate(Routes.AFTER_ONBOARDING) { popUpTo(Routes.AUTH) { inclusive = true } }
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Welcome to Bhakti", style = MaterialTheme.typography.displaySmall)
+        Text("🙏 Welcome to Bhakti", style = MaterialTheme.typography.displaySmall)
         Text(
-            "Sign in to begin your daily devotional journey",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 8.dp, bottom = 28.dp)
-        )
-
-        Button(
-            onClick = {
-                errorMessage = null
-                isLoading = true
-                scope.launch {
-                    val result = container.authRepository.signInWithGoogle()
-                    isLoading = false
-                    result.onSuccess { user ->
-                        container.sessionManager.signIn(user)
-                        goToPaywall()
-                    }.onFailure { errorMessage = it.message }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        ) {
-            Text("Continue with Google")
-        }
-
-        Text(
-            "or",
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(vertical = 16.dp)
+            "What should we call you?",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
         )
 
         OutlinedTextField(
-            value = phone,
-            onValueChange = { if (it.length <= 10) phone = it.filter(Char::isDigit) },
-            label = { Text("Mobile number") },
-            prefix = { Text("+91 ") },
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+            value = name,
+            onValueChange = { if (it.length <= 30) name = it },
+            label = { Text("Your name") },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { begin() }),
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedButton(
-            onClick = { navController.navigate(Routes.otp(phone)) },
+        Button(
+            onClick = { begin() },
+            enabled = !saving,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp),
-            enabled = !isLoading && phone.length == 10
+                .padding(top = 16.dp)
         ) {
-            Text("Send OTP")
+            Text("Begin my journey")
         }
 
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.padding(top = 20.dp))
-        }
-        errorMessage?.let {
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-        }
+        Text(
+            "No account needed - your routine and japa progress stay on this phone.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 16.dp)
+        )
     }
 }

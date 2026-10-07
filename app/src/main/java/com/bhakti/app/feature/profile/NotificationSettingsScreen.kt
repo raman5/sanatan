@@ -61,7 +61,7 @@ fun NotificationSettingsScreen(navController: NavHostController) {
             NotificationRow("Morning devotional reminder", "7:00 AM", s.notifMorning) { enabled ->
                 toggle(NotificationPrefKey.MORNING, enabled)
             }
-            NotificationRow("Evening aarti reminder", "6:30 PM", s.notifEvening) { enabled ->
+            NotificationRow("Evening pooja reminder", "6:30 PM", s.notifEvening) { enabled ->
                 toggle(NotificationPrefKey.EVENING, enabled)
             }
             NotificationRow("Daily mantra notification", "9:00 AM", s.notifMantra) { enabled ->

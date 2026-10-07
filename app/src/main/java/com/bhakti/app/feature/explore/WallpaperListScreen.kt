@@ -32,9 +32,9 @@ import com.bhakti.app.data.model.Deity
 import com.bhakti.app.data.model.Wallpaper
 
 @Composable
-fun WallpaperListScreen(navController: NavHostController) {
+fun WallpaperListScreen(navController: NavHostController, initialDeity: Deity? = null) {
     val container = LocalAppContainer.current
-    var selectedDeity by remember { mutableStateOf<Deity?>(null) }
+    var selectedDeity by remember { mutableStateOf(initialDeity) }
     var wallpapers by remember { mutableStateOf<List<Wallpaper>>(emptyList()) }
 
     LaunchedEffect(selectedDeity) {
@@ -66,7 +66,7 @@ fun WallpaperListScreen(navController: NavHostController) {
                         navController.navigate(Routes.contentDetail(ContentType.WALLPAPER, wallpaper.id))
                     }
                 ) {
-                    PlaceholderArt(deity = wallpaper.deity, label = wallpaper.title)
+                    PlaceholderArt(deity = wallpaper.deity, label = wallpaper.title, imageVariant = wallpaper.imageVariant, imageUrl = wallpaper.imageUrl)
                     Text(
                         wallpaper.title,
                         style = MaterialTheme.typography.labelSmall,

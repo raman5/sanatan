@@ -2,14 +2,11 @@ package com.bhakti.app.core.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SelfImprovement
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,45 +15,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.bhakti.app.data.model.Deity
 
 /**
- * Stands in for a real image/video asset from the CMS. Every wallpaper,
- * bhajan cover and status card renders one of these until real media exists.
+ * Devotional artwork card for a deity - [imageUrl] from the backend when
+ * present (see [com.bhakti.app.data.repository.FirebaseContentRepository]),
+ * else the bundled drawable via [imageFor] - with a bottom scrim so the
+ * title stays legible over either. Every wallpaper, mantra and status
+ * card renders one of these.
  */
 @Composable
 fun PlaceholderArt(
     deity: Deity,
     label: String,
     modifier: Modifier = Modifier,
-    aspectRatio: Float = 9f / 16f
+    aspectRatio: Float = 9f / 16f,
+    imageVariant: Int = 0,
+    imageUrl: String? = null
 ) {
-    val accent = Color(deity.accentHex)
     Box(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(aspectRatio)
             .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.verticalGradient(listOf(accent.copy(alpha = 0.85f), accent.copy(alpha = 0.35f)))
-            )
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = Icons.Filled.SelfImprovement,
-                contentDescription = null,
-                tint = Color.White
-            )
+        DeityArtImage(
+            url = imageUrl,
+            fallbackRes = imageFor(deity, imageVariant),
+            contentDescription = "${deity.displayName} devotional artwork",
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.TopCenter,
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.65f))
+                    )
+                )
+                .padding(12.dp)
+        ) {
             Text(
                 text = label,
                 color = Color.White,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 6.dp)
+                style = MaterialTheme.typography.labelSmall
             )
         }
     }

@@ -104,7 +104,7 @@ fun OtpScreen(navController: NavHostController, phone: String) {
                     isLoading = false
                     result.onSuccess { user ->
                         container.sessionManager.signIn(user)
-                        navController.navigate(Routes.PAYWALL) {
+                        navController.navigate(Routes.AFTER_ONBOARDING) {
                             popUpTo(Routes.AUTH) { inclusive = true }
                         }
                     }.onFailure { errorMessage = it.message }

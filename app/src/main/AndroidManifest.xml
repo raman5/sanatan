@@ -4,6 +4,17 @@
     <!-- SHARED FILE: announce changes here before merging. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Only needed on Android 9 and below; scoped storage on 10+ needs no permission to save to Pictures. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+
+    <!-- Android 11+ package visibility: lets Naam Japa's text-to-speech fallback
+         find the device's TTS engine (see core/media/NaamChanter.kt). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
 
     <application
         android:name=".BhaktiApplication"
@@ -34,5 +45,17 @@
         <receiver
             android:name=".notifications.ReminderReceiver"
             android:exported="false" />
+
+        <!-- Lets other apps (WhatsApp, etc.) read a shared wallpaper/status image
+             without exposing the rest of the app's files. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

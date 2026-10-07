@@ -7,7 +7,7 @@ import android.content.Intent
 import java.util.Calendar
 
 /**
- * Schedules the local reminders from the PRD (morning, evening aarti, daily
+ * Schedules the local reminders from the PRD (morning, evening pooja, daily
  * mantra, daily status, festival alerts). Fully on-device today; swap for a
  * push-notification backend later without changing call sites.
  */

@@ -16,6 +16,10 @@ local.properties
 keystore.properties
 secrets.properties
 google-services.json
+firebase.properties
+*-service-account*.json
+backend/serviceAccountKey.json
+backend/node_modules/
 .env
 
 # --- IDE noise --------------------------------------------------------------

@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +31,13 @@ import kotlinx.coroutines.launch
 fun PaymentScreen(navController: NavHostController, planId: String) {
     val container = LocalAppContainer.current
     val scope = rememberCoroutineScope()
-    val plan = SubscriptionPlan.ALL.firstOrNull { it.id == planId } ?: SubscriptionPlan.ALL.first()
+    var plan by remember {
+        mutableStateOf(SubscriptionPlan.ALL.firstOrNull { it.id == planId } ?: SubscriptionPlan.ALL.first())
+    }
+    LaunchedEffect(planId) {
+        val plans = container.contentRepository.subscriptionPlans()
+        plan = plans.firstOrNull { it.id == planId } ?: plans.first()
+    }
 
     var upiId by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }

@@ -1,6 +1,7 @@
 package com.bhakti.app.data.model
 
-enum class AuthMethod { GOOGLE, MOBILE_OTP }
+/** LOCAL = name-only profile kept on the phone, no account or verification behind it. */
+enum class AuthMethod { GOOGLE, MOBILE_OTP, LOCAL }
 
 data class User(
     val id: String,
