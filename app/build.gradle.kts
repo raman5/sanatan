@@ -32,13 +32,13 @@ fun firebaseProp(key: String): String = firebaseProperties.getProperty(key, "")
 
 android {
     namespace = "com.bhakti.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.bhakti.app"
+        applicationId = "com.bhaktt.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 3
+        targetSdk = 36
+        versionCode = 4
         versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
