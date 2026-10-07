@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * One-time migration: uploads Bhakti's bundled deity portraits, bhajan/
+ * One-time migration: uploads Bhakti's bundled deity portraits and
  * mantra/bell audio to Firebase Storage, and writes the matching Firestore
- * documents (wallpapers, bhajans, mantras, statuses, festivals,
+ * documents (wallpapers, mantras, statuses, festivals,
  * deityPortraits, appAssets, subscriptionPlans) with those URLs filled in.
  *
  * Mirrors app/src/main/java/com/bhakti/app/data/repository/SampleContent.kt
@@ -73,7 +73,6 @@ const DISPLAY_NAMES = {
 const THEMES = ['Devotional', 'Festival Special', 'Minimalist', 'Golden Hour', 'Temple Art'];
 const STYLES = ['Realistic', 'Traditional Art', 'Modern Illustration', 'Gold Foil'];
 const WALLPAPER_CATEGORIES = ['Daily Darshan', 'Festival', 'HD Portrait', 'Home Screen'];
-const BHAJAN_CATEGORIES = ['Aarti', 'Bhajan', 'Chalisa', 'Stotra'];
 const STATUS_CATEGORIES = ['Good Morning', 'Good Night', 'Deity Special', 'Quotes', 'Festival'];
 const STATUS_MEDIA_TYPES = ['IMAGE', 'VIDEO', 'TEXT'];
 
@@ -154,18 +153,9 @@ async function main() {
     console.log(`  deity portrait: ${deity}`);
   }
 
-  // 2) Bhajan + mantra audio (one file each per deity).
-  const bhajanAudioUrls = {};
+  // 2) Mantra audio (one file per deity).
   const mantraAudioUrls = {};
   for (const deity of DEITIES) {
-    const bhajanExt = fs.existsSync(path.join(RAW_DIR, `bhajan_${lower(deity)}.m4a`)) ? 'm4a' : 'ogg';
-    const bhajanFile = path.join(RAW_DIR, `bhajan_${lower(deity)}.${bhajanExt}`);
-    bhajanAudioUrls[deity] = await uploadAndGetUrl(
-      bhajanFile,
-      `bhajanAudio/${lower(deity)}.${bhajanExt}`,
-      bhajanExt === 'm4a' ? 'audio/mp4' : 'audio/ogg'
-    );
-
     const mantraFile = path.join(RAW_DIR, `mantra_${lower(deity)}.m4a`);
     mantraAudioUrls[deity] = await uploadAndGetUrl(mantraFile, `mantraAudio/${lower(deity)}.m4a`, 'audio/mp4');
     console.log(`  audio: ${deity}`);
@@ -208,23 +198,7 @@ async function main() {
     }
   });
 
-  // 5) Bhajans (1 per deity).
-  DEITIES.forEach((deity, idx) => {
-    batch.set(db.collection('bhajans').doc(`bh-${lower(deity)}`), {
-      deity,
-      title: `${DISPLAY_NAMES[deity]} ${BHAJAN_CATEGORIES[idx % BHAJAN_CATEGORIES.length]}`,
-      category: BHAJAN_CATEGORIES[idx % BHAJAN_CATEGORIES.length],
-      singer: 'Various Artists',
-      durationSec: 3 + (idx % 4),
-      playCount: 1000 + idx * 137,
-      featured: idx % 4 === 0,
-      status: 'PUBLISHED',
-      audioUrl: bhajanAudioUrls[deity]
-    });
-    opCount++;
-  });
-
-  // 6) Mantras (1 per deity).
+  // 5) Mantras (1 per deity).
   DEITIES.forEach((deity) => {
     const seed = MANTRA_SEEDS[deity];
     batch.set(db.collection('mantras').doc(`mn-${lower(deity)}-1`), {
@@ -244,7 +218,7 @@ async function main() {
     opCount++;
   });
 
-  // 7) WhatsApp statuses (2 per deity).
+  // 6) WhatsApp statuses (2 per deity).
   DEITIES.forEach((deity, deityIdx) => {
     for (let i = 0; i < 2; i++) {
       const idx = deityIdx * 2 + i;
@@ -266,14 +240,14 @@ async function main() {
     }
   });
 
-  // 8) Festivals.
+  // 7) Festivals.
   FESTIVALS.forEach((festival) => {
     const { id, ...rest } = festival;
     batch.set(db.collection('festivals').doc(id), rest);
     opCount++;
   });
 
-  // 9) Subscription plans.
+  // 8) Subscription plans.
   SUBSCRIPTION_PLANS.forEach((plan) => {
     const { id, ...rest } = plan;
     batch.set(db.collection('subscriptionPlans').doc(id), rest);
@@ -281,7 +255,7 @@ async function main() {
   });
 
   await batch.commit();
-  console.log(`Done. Wrote ${DEITIES.length * 2} wallpapers, ${DEITIES.length} bhajans, ${DEITIES.length} mantras, ${DEITIES.length * 2} statuses, ${FESTIVALS.length} festivals, ${SUBSCRIPTION_PLANS.length} subscription plans, ${DEITIES.length} deity portraits, 1 app asset.`);
+  console.log(`Done. Wrote ${DEITIES.length * 2} wallpapers, ${DEITIES.length} mantras, ${DEITIES.length * 2} statuses, ${FESTIVALS.length} festivals, ${SUBSCRIPTION_PLANS.length} subscription plans, ${DEITIES.length} deity portraits, 1 app asset.`);
 }
 
 main().catch((err) => {

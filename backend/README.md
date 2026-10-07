@@ -1,19 +1,19 @@
 # Bhakti backend (Firebase)
 
-Configurable content - deity portraits, wallpaper/status artwork, bhajan and
+Configurable content - deity portraits, wallpaper/status artwork,
 mantra audio, the pooja bell sound, and subscription pricing - lives here,
 not in the Android app. Change it from the Firebase Console any time;
 no app release needed.
 
 ## What's where
 
-- **Firestore** (structured text/numbers): `wallpapers`, `bhajans`,
+- **Firestore** (structured text/numbers): `wallpapers`,
   `mantras`, `statuses`, `festivals`, `deityPortraits`, `appAssets`,
   `subscriptionPlans` collections. Document shapes mirror
   `app/src/main/java/com/bhakti/app/data/repository/FirebaseContentRepository.kt`
   field-for-field.
 - **Storage**: the actual image/audio files these documents link to, under
-  `deityPortraits/`, `bhajanAudio/`, `mantraAudio/`, `appAssets/`.
+  `deityPortraits/`, `mantraAudio/`, `appAssets/`.
 - **The Android app**: reads both through
   `FirebaseContentRepository` once it's configured (see step 4) -
   automatically, with zero further app changes, because every screen
@@ -88,7 +88,7 @@ service firebase.storage {
 }
 ```
 
-This content (deity portraits, bhajans, mantras) is meant to be public
+This content (deity portraits, wallpapers, mantras) is meant to be public
 inside the app, so this is intentional, not a security hole - just don't
 put anything sensitive in this bucket later without tightening the rule.
 
@@ -107,9 +107,9 @@ npm install
 node migrate-content.js <your-storage-bucket-name>
 ```
 
-This uploads every bundled deity portrait, bhajan/mantra audio clip and
+This uploads every bundled deity portrait, mantra audio clip and
 the bell sound to Storage, and writes matching Firestore documents with
-the same ids the app already uses (`wp-shiva-0`, `bh-krishna`, etc.) - so
+the same ids the app already uses (`wp-shiva-0`, `mn-krishna-1`, etc.) - so
 this is a like-for-like move of today's catalogue onto the backend, not a
 new/different catalogue. Safe to re-run any time (every write upserts).
 
@@ -144,7 +144,7 @@ fresh launch).
   Mantra japa works the same way: add a `japaAudioUrl` field (one recorded
   repetition of the mantra) to a document in `mantras` to replace the
   text-to-speech chant on each counter tap.
-- **Add a new wallpaper/bhajan/mantra/status entirely**: create a new
+- **Add a new wallpaper/mantra/status entirely**: create a new
   document in the relevant collection with a new id, following the same
   field shape as the existing ones (check `FirebaseContentRepository.kt`'s
   mapping functions for the exact field names each collection expects).
