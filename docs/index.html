@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bhakti — Daily Pooja, Naam Japa & Mantras</title>
+<meta name="description" content="Bhakti is a free devotional app for Android: a virtual daily pooja, naam japa on a 108-bead mala chanted aloud in Hindi, mantras with meaning, a routine tracker, wallpapers and WhatsApp status.">
+<link rel="canonical" href="https://bhaktt.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bhaktt.com/">
+<meta property="og:title" content="Bhakti — your devotional routine, one app">
+<meta property="og:description" content="Daily pooja, naam japa, mantras & wallpapers. Free on Android.">
+<meta property="og:image" content="https://bhaktt.com/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a0f33">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --saffron: #b44e00;
+    --marigold: #f2a33a;
+    --peach: #ffb870;
+    --gold: #ffd79a;
+    --night: #1a0f33;
+    --night-deep: #0c0620;
+    --paper: #f8f1e6;
+    --card: #ffffff;
+    --ink: #241a12;
+    --ink-soft: #5e4f40;
+    --rule: #eadcc4;
+    --accent: #b44e00;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #17110c;
+      --card: #221a12;
+      --ink: #f4ead9;
+      --ink-soft: #c8b8a1;
+      --rule: #3a2e21;
+      --accent: #f2a33a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #17110c;
+    --card: #221a12;
+    --ink: #f4ead9;
+    --ink-soft: #c8b8a1;
+    --rule: #3a2e21;
+    --accent: #f2a33a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; line-height: 1.15; margin: 0; }
+
+  /* ---------- Header + hero (always night-sky, like the app's splash) ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    color: #fff3e0;
+    background:
+      radial-gradient(1.5px 1.5px at 12% 18%, #fff8 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 78% 12%, #fff9 50%, transparent 51%),
+      radial-gradient(1px 1px at 34% 62%, #fff7 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 88% 54%, #fff8 50%, transparent 51%),
+      radial-gradient(1px 1px at 56% 28%, #fff6 50%, transparent 51%),
+      radial-gradient(1px 1px at 22% 84%, #fff7 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 66% 88%, #fff6 50%, transparent 51%),
+      radial-gradient(1px 1px at 94% 30%, #fff7 50%, transparent 51%),
+      radial-gradient(1px 1px at 6% 46%, #fff6 50%, transparent 51%),
+      radial-gradient(ellipse at 70% 40%, #3b1f6e 0%, transparent 60%),
+      linear-gradient(180deg, #2b124d 0%, var(--night) 55%, var(--night-deep) 100%);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 9px; }
+  .brand span { font-family: "Fraunces", Georgia, serif; font-size: 1.35rem; font-weight: 600; color: var(--gold); }
+  .nav-links { display: flex; gap: 22px; font-size: 0.95rem; }
+  .nav-links a { color: #f4e3c8; text-decoration: none; opacity: 0.85; }
+  .nav-links a:hover { opacity: 1; text-decoration: underline; }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+    align-items: center;
+    padding: 40px 0 72px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--peach);
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; color: #fff3e0; text-wrap: balance; }
+  .hero h1 em { font-style: normal; color: var(--marigold); }
+  .lede { font-size: 1.15rem; color: #e9d9c1; margin: 18px 0 30px; max-width: 34ch; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--marigold); color: #2a1300; box-shadow: 0 6px 24px #f2a33a55; }
+  .btn-ghost { color: #fff3e0; border: 1px solid #ffffff40; }
+  .btn svg { width: 20px; height: 20px; }
+  .soon { font-size: 0.85rem; color: #cbb9e6; margin-top: 14px; }
+
+  .phones { position: relative; height: 560px; }
+  .phone {
+    position: absolute;
+    width: 250px;
+    border-radius: 30px;
+    border: 7px solid #120a24;
+    box-shadow: 0 30px 60px #00000080, 0 0 0 1px #ffffff14;
+    overflow: hidden;
+    background: #120a24;
+  }
+  .phone img { width: 100%; height: auto; }
+  .phone.back { top: 40px; left: 0; transform: rotate(-7deg); opacity: 0.9; }
+  .phone.front { top: 0; right: 10px; transform: rotate(4deg); }
+
+  /* ---------- Features ---------- */
+  section { padding: 84px 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 56px; }
+  .section-head h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); }
+  .section-head p { color: var(--ink-soft); margin: 14px 0 0; }
+
+  .feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: center;
+    margin-bottom: 88px;
+  }
+  .feature:last-child { margin-bottom: 0; }
+  .feature:nth-child(even) .feature-text { order: 2; }
+  .feature-text .icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+  .feature-text h3 { font-size: 1.8rem; margin-bottom: 12px; }
+  .feature-text p { color: var(--ink-soft); margin: 0 0 12px; }
+  .feature-text ul { margin: 0; padding-left: 1.2em; color: var(--ink-soft); }
+  .feature-text li { margin-bottom: 6px; }
+  .feature-text li::marker { color: var(--marigold); }
+  .shot {
+    justify-self: center;
+    width: 270px;
+    border-radius: 30px;
+    border: 7px solid var(--ink);
+    overflow: hidden;
+    box-shadow: 0 24px 50px #3b200a30;
+    background: var(--ink);
+  }
+
+  /* ---------- More features grid ---------- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    padding: 24px;
+  }
+  .tile b { display: block; font-family: "Fraunces", Georgia, serif; font-size: 1.2rem; margin: 8px 0 6px; }
+  .tile p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+  .tile .icon { font-size: 1.6rem; }
+
+  /* ---------- Gallery strip ---------- */
+  .gallery {
+    display: flex; gap: 18px; overflow-x: auto;
+    padding: 6px 4px 18px;
+    scroll-snap-type: x mandatory;
+  }
+  .gallery img {
+    flex: 0 0 auto;
+    width: 200px; border-radius: 22px;
+    border: 5px solid var(--ink);
+    scroll-snap-align: start;
+  }
+
+  /* ---------- Closing CTA ---------- */
+  .closing {
+    text-align: center;
+    color: #fff3e0;
+    background: linear-gradient(160deg, #2b124d, var(--night-deep));
+    border-radius: 28px;
+    padding: 64px 24px;
+  }
+  .closing h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); color: #fff3e0; }
+  .closing p { color: #e2d2bb; max-width: 520px; margin: 14px auto 28px; }
+  .closing .cta-row { justify-content: center; }
+
+  footer {
+    padding: 40px 0 56px;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+  .foot { display: flex; flex-wrap: wrap; gap: 16px 28px; justify-content: space-between; align-items: center; border-top: 1px solid var(--rule); padding-top: 28px; }
+  .foot nav { display: flex; gap: 22px; flex-wrap: wrap; }
+  .foot a { color: var(--ink-soft); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; padding: 24px 0 56px; text-align: center; }
+    .lede { margin-left: auto; margin-right: auto; }
+    .cta-row { justify-content: center; }
+    .phones { height: 440px; max-width: 360px; margin: 0 auto; width: 100%; }
+    .phone { width: 190px; border-width: 6px; border-radius: 24px; }
+    .phone.back { left: 0; }
+    .phone.front { right: 0; }
+    .feature { grid-template-columns: 1fr; gap: 28px; margin-bottom: 64px; text-align: center; }
+    .feature:nth-child(even) .feature-text { order: 0; }
+    .feature-text ul { display: inline-block; text-align: left; }
+    .shot { width: 230px; }
+    .grid3 { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <nav class="nav" aria-label="Main">
+      <a class="brand" href="/">
+        <img src="assets/icon-192.png" alt="" width="36" height="36">
+        <span>Bhakti</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#gallery">Screenshots</a>
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="mailto:maneeshanegi30@gmail.com">Contact</a>
+      </div>
+    </nav>
+
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Free devotional app for Android</span>
+        <h1>Your daily <em>devotion</em>, in one&nbsp;app.</h1>
+        <p class="lede">Offer a virtual pooja, chant naam japa on a 108-bead mala, start the day with a mantra, and watch your routine grow into a habit.</p>
+        <div class="cta-row">
+          <!-- When Bhakti is live, change this href to https://play.google.com/store/apps/details?id=com.bhaktt.app and the label to "Get it on Google Play" -->
+          <a class="btn btn-primary" href="mailto:maneeshanegi30@gmail.com?subject=Bhakti%20early%20access">
+            Get early access
+          </a>
+          <a class="btn btn-ghost" href="#features">See what's inside</a>
+        </div>
+        <p class="soon">Coming soon to Google Play · No account needed</p>
+      </div>
+      <div class="phones" aria-hidden="true">
+        <div class="phone back"><img src="assets/shrine.webp" alt="" width="540" height="1080"></div>
+        <div class="phone front"><img src="assets/home.webp" alt="" width="540" height="1080"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Everything for your daily practice</h2>
+        <p>Bhakti turns devotion into a simple routine you can open every morning. Pooja, japa, mantra, darshan, done.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-text">
+          <span class="icon" aria-hidden="true">🛕</span>
+          <h3>Daily Pooja</h3>
+          <p>Step into a virtual shrine for your ishta devata and offer your pooja right from your phone.</p>
+          <ul>
+            <li>Ring the temple bell and fold your hands</li>
+            <li>Shower flowers, offer water and milk</li>
+            <li>Each ritual with its own animation and sound</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/shrine.webp" alt="Krishna's shrine in Bhakti, with flowers being offered" width="540" height="1080" loading="lazy">
+      </div>
+
+      <div class="feature">
+        <div class="feature-text">
+          <span class="icon" aria-hidden="true">📿</span>
+          <h3>Naam Japa</h3>
+          <p>Choose a deity and repeat their name on an animated 108-bead mala.</p>
+          <ul>
+            <li>Every tap chanted aloud in Hindi, or silent if you prefer</li>
+            <li>Today's count, malas completed and lifetime total</li>
+            <li>A 🔥 streak to keep you coming back</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/japa.webp" alt="Ram naam japa counter at 27 of 108" width="540" height="1080" loading="lazy">
+      </div>
+
+      <div class="feature">
+        <div class="feature-text">
+          <span class="icon" aria-hidden="true">🕉️</span>
+          <h3>Mantras with meaning</h3>
+          <p>Each mantra comes with the Devanagari text, transliteration and a plain-language explanation, plus its own japa counter that chants with you.</p>
+        </div>
+        <img class="shot" src="assets/mantra.webp" alt="Sai Baba mantra screen with Devanagari text and meaning" width="540" height="1080" loading="lazy">
+      </div>
+
+      <div class="feature">
+        <div class="feature-text">
+          <span class="icon" aria-hidden="true">📈</span>
+          <h3>See your consistency</h3>
+          <p>Your routine resets every morning. The Progress tab shows how regularly you've kept it over the last three months.</p>
+          <ul>
+            <li>Current and best streak</li>
+            <li>Monday-to-Sunday view with daily completion</li>
+            <li>A monthly calendar that lights up every full day</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/progress.webp" alt="Progress tab showing a 9-day streak and a monthly calendar" width="540" height="1080" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="grid3">
+        <div class="tile">
+          <span class="icon" aria-hidden="true">🖼️</span>
+          <b>Wallpapers</b>
+          <p>Deity wallpapers for Shiva, Krishna, Ram, Hanuman, Ganesh, Durga, Lakshmi and more. Set or save in one tap.</p>
+        </div>
+        <div class="tile">
+          <span class="icon" aria-hidden="true">💬</span>
+          <b>WhatsApp Status</b>
+          <p>Good morning, good night and festival status images, ready to share with family.</p>
+        </div>
+        <div class="tile">
+          <span class="icon" aria-hidden="true">🔒</span>
+          <b>No account needed</b>
+          <p>Just tell Bhakti your name. Your routine and japa progress stay on your phone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:28px">
+        <h2>A look inside</h2>
+      </div>
+      <div class="gallery">
+        <img src="assets/home.webp" alt="Home screen with Your Routine" width="540" height="1080" loading="lazy">
+        <img src="assets/pooja.webp" alt="Choose a deity for Daily Pooja" width="540" height="1080" loading="lazy">
+        <img src="assets/shrine.webp" alt="Pooja shrine" width="540" height="1080" loading="lazy">
+        <img src="assets/japa.webp" alt="Naam japa counter" width="540" height="1080" loading="lazy">
+        <img src="assets/mantra.webp" alt="Mantra with meaning" width="540" height="1080" loading="lazy">
+        <img src="assets/progress.webp" alt="Progress tracker" width="540" height="1080" loading="lazy">
+        <img src="assets/wallpapers.webp" alt="Devotional wallpapers" width="540" height="1080" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="closing">
+        <h2>Begin your journey 🙏</h2>
+        <p>Bhakti is free and coming soon to Google Play. Write to us to join early testing.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="mailto:maneeshanegi30@gmail.com?subject=Bhakti%20early%20access">Get early access</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 Bhakti</span>
+    <nav aria-label="Footer">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="mailto:maneeshanegi30@gmail.com">maneeshanegi30@gmail.com</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
