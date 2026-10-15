@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // App content: anyone can read, nobody can write from the app
+    // (content is edited in the Firebase console or by admin scripts).
+    match /{collection}/{docId} {
+      allow read: if collection in [
+        'wallpapers', 'mantras', 'statuses', 'festivals', 'bhajans',
+        'deityPortraits', 'appAssets', 'subscriptionPlans'
+      ];
+    }
+
+    // Each user can read only their own subscription status. Only the
+    // payment functions (admin SDK) write it.
+    match /entitlements/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // razorpaySubscriptions and razorpayWebhookEvents are server-only:
+    // no rule here, so the app cannot read or write them.
+  }
+}

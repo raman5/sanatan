@@ -36,3 +36,10 @@ Thumbs.db
 
 # VS Code (Maneesha)
 .vscode/
+
+# Cloud Functions
+functions/node_modules/
+functions/.env
+functions/.env.*
+!functions/.env.example
+firebase-debug.log
