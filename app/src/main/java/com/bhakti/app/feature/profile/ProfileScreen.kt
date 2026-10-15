@@ -247,6 +247,9 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
         ProfileLink("Language") { navController.navigate(Routes.LANGUAGE) }
         ProfileLink("Help & Support") { navController.navigate(Routes.HELP_SUPPORT) }
         ProfileLink("Terms & Privacy Policy") { navController.navigate(Routes.LEGAL) }
+        if (session?.user?.authMethod == AuthMethod.GOOGLE) {
+            ProfileLink("Delete account") { context.openUrl(LegalLinks.DELETE_ACCOUNT) }
+        }
 
         if (session?.user?.authMethod != AuthMethod.LOCAL) {
             Button(
