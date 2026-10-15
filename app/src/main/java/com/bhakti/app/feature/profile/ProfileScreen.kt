@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -73,6 +76,9 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
     }
 
     var isEditingName by remember { mutableStateOf(false) }
+    var showCancelDialog by remember { mutableStateOf(false) }
+    var cancelling by remember { mutableStateOf(false) }
+    var cancelMessage by remember { mutableStateOf<String?>(null) }
     var nameDraft by remember { mutableStateOf("") }
 
     Column(modifier = modifier.fillMaxSize().padding(20.dp)) {
@@ -187,10 +193,52 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
                         style = MaterialTheme.typography.bodyMedium
                     )
                     sub.renewalDateIso?.let {
-                        Text("Renews on $it", style = MaterialTheme.typography.bodyMedium)
+                        val label = if (sub.status == SubscriptionStatus.CANCELLED) "Access until" else "Renews on"
+                        Text("$label $it", style = MaterialTheme.typography.bodyMedium)
                     }
+                    val canCancel = sub.status == SubscriptionStatus.ACTIVE ||
+                        sub.status == SubscriptionStatus.TRIAL || sub.status == SubscriptionStatus.PAST_DUE
+                    if (canCancel) {
+                        TextButton(
+                            onClick = { showCancelDialog = true },
+                            enabled = !cancelling,
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(if (cancelling) "Cancelling…" else "Cancel subscription")
+                        }
+                    }
+                    cancelMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 }
             }
+        }
+
+        if (showCancelDialog) {
+            AlertDialog(
+                onDismissRequest = { showCancelDialog = false },
+                title = { Text("Cancel subscription?") },
+                text = {
+                    Text(
+                        "AutoPay will stop and you won't be charged again. " +
+                            "You keep full access until the end of the period you've paid for."
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showCancelDialog = false
+                        cancelling = true
+                        cancelMessage = null
+                        scope.launch {
+                            container.paymentRepository.cancelSubscription()
+                                .onSuccess { cancelMessage = "Subscription cancelled. No further charges." }
+                                .onFailure { cancelMessage = it.message }
+                            cancelling = false
+                        }
+                    }) { Text("Cancel subscription") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCancelDialog = false }) { Text("Keep it") }
+                }
+            )
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -204,6 +252,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
             Button(
                 onClick = {
                     scope.launch {
+                        container.authRepository.signOut()
                         container.sessionManager.signOut()
                         navController.navigate(Routes.AUTH) { popUpTo(0) }
                     }

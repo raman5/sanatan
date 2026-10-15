@@ -38,19 +38,22 @@ android {
         applicationId = "com.bhaktt.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.3.0"
+        versionCode = 6
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Off until real payments (Razorpay) are integrated - while off, the paywall and
-        // payment screens are never shown and every user gets the full app.
-        buildConfigField("boolean", "SUBSCRIPTIONS_ENABLED", "false")
+        // On: users sign in with Google and need an active Razorpay subscription
+        // (checked server-side, see functions/) to get past the paywall.
+        // Set to "false" to ship a build where everything is free and no sign-in is needed.
+        buildConfigField("boolean", "SUBSCRIPTIONS_ENABLED", "true")
 
         buildConfigField("String", "FIREBASE_API_KEY", "\"${firebaseProp("apiKey")}\"")
         buildConfigField("String", "FIREBASE_APP_ID", "\"${firebaseProp("appId")}\"")
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${firebaseProp("projectId")}\"")
         buildConfigField("String", "FIREBASE_STORAGE_BUCKET", "\"${firebaseProp("storageBucket")}\"")
+        // OAuth "Web client" id of the Firebase project - Google sign-in asks for an id token for it.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${firebaseProp("webClientId")}\"")
     }
 
     signingConfigs {
@@ -125,6 +128,12 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.functions.ktx)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.razorpay.checkout)
     implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)

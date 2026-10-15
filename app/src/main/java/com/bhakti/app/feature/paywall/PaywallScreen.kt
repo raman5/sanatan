@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.navigation.NavHostController
 import com.bhakti.app.BuildConfig
 import com.bhakti.app.core.di.LocalAppContainer
 import com.bhakti.app.core.navigation.Routes
+import com.bhakti.app.core.payments.EntitlementSync
 import com.bhakti.app.data.model.BillingCycle
 import com.bhakti.app.data.model.Subscription
 import com.bhakti.app.data.model.SubscriptionPlan
@@ -39,10 +41,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 private val benefits = listOf(
-    "Devotional wallpapers refreshed regularly",
-    "Daily Pooja and Naam Japa with a japa counter",
-    "Mantras with meaning and audio",
-    "Daily WhatsApp status content"
+    "Daily Pooja - ring the bell, offer flowers, water and milk",
+    "Naam Japa on a 108-bead mala, chanted aloud in Hindi",
+    "Daily mantra with meaning and its own japa counter",
+    "Devotional wallpapers and daily WhatsApp status",
+    "Your Routine and Progress tracking with streaks"
 )
 
 @Composable
@@ -59,6 +62,15 @@ fun PaywallScreen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         plans = container.contentRepository.subscriptionPlans()
         selectedPlan = plans.firstOrNull { it.cycle == BillingCycle.ANNUAL } ?: plans.first()
+    }
+
+    // An existing subscription (reinstall, new phone, or a payment confirmed by
+    // the webhook after the app was closed) lets the user straight in.
+    val session by container.sessionManager.state.collectAsState(initial = null)
+    LaunchedEffect(session?.hasActiveAccess) {
+        if (session?.hasActiveAccess == true) {
+            navController.navigate(Routes.HOME) { popUpTo(Routes.PAYWALL) { inclusive = true } }
+        }
     }
 
     Column(
@@ -108,6 +120,23 @@ fun PaywallScreen(navController: NavHostController) {
             modifier = Modifier.padding(top = 12.dp)
         )
 
+        session?.user?.email?.let { email ->
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        container.authRepository.signOut()
+                        container.sessionManager.signOut()
+                        navController.navigate(Routes.AUTH) { popUpTo(Routes.PAYWALL) { inclusive = true } }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+            ) {
+                Text("Signed in as $email · Switch account", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+
         if (BuildConfig.DEBUG) {
             TextButton(
                 onClick = {
@@ -121,7 +150,7 @@ fun PaywallScreen(navController: NavHostController) {
                                 planId = selectedPlan.id,
                                 status = SubscriptionStatus.ACTIVE,
                                 renewalDateIso = renewalDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                                mandateId = "debug-skip"
+                                mandateId = EntitlementSync.DEBUG_SKIP
                             )
                         )
                         navController.navigate(Routes.HOME) {

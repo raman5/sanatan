@@ -4,9 +4,11 @@ import android.content.Context
 import com.bhakti.app.BuildConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.persistentCacheSettings
+import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.storage.FirebaseStorage
 
 /**
@@ -60,4 +62,17 @@ object FirebaseConfig {
         ensureInitialized(context)
         return FirebaseStorage.getInstance()
     }
+
+    fun auth(context: Context): FirebaseAuth {
+        ensureInitialized(context)
+        return FirebaseAuth.getInstance()
+    }
+
+    /** Payment functions are deployed to Mumbai - see functions/index.js. */
+    fun functions(context: Context): FirebaseFunctions {
+        ensureInitialized(context)
+        return FirebaseFunctions.getInstance(FUNCTIONS_REGION)
+    }
+
+    private const val FUNCTIONS_REGION = "asia-south1"
 }

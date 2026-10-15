@@ -63,8 +63,12 @@ fun SplashScreen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         delay(1300)
         val session = container.sessionManager.state.first()
+        // With subscriptions on, a name-only profile from an older version (or a
+        // signed-out Firebase session) has to sign in with Google first.
+        val needsAccount = BuildConfig.SUBSCRIPTIONS_ENABLED &&
+            container.authRepository.currentUserId() != session.user?.id
         val destination = when {
-            !session.isLoggedIn -> Routes.AUTH
+            !session.isLoggedIn || needsAccount -> Routes.AUTH
             BuildConfig.SUBSCRIPTIONS_ENABLED && !session.hasActiveAccess -> Routes.PAYWALL
             else -> Routes.HOME
         }

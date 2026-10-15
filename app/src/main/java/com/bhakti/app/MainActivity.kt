@@ -11,9 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.bhakti.app.core.di.LocalAppContainer
 import com.bhakti.app.core.navigation.BhaktiApp
+import com.bhakti.app.core.payments.RazorpayCheckoutBridge
 import com.bhakti.app.ui.theme.BhaktiTheme
+import com.razorpay.PaymentData
+import com.razorpay.PaymentResultWithDataListener
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), PaymentResultWithDataListener {
 
     private var pendingDeepLink by mutableStateOf<String?>(null)
 
@@ -39,6 +42,13 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         pendingDeepLink = intent.getStringExtra(EXTRA_DEEP_LINK_ROUTE)
     }
+
+    // Razorpay Checkout calls back on the Activity that opened it.
+    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) =
+        RazorpayCheckoutBridge.onPaymentSuccess(razorpayPaymentId, paymentData)
+
+    override fun onPaymentError(code: Int, response: String?, paymentData: PaymentData?) =
+        RazorpayCheckoutBridge.onPaymentError(code, response)
 
     companion object {
         const val EXTRA_DEEP_LINK_ROUTE = "deep_link_route"

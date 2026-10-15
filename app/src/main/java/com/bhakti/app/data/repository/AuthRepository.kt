@@ -1,120 +1,109 @@
 package com.bhakti.app.data.repository
 
+import android.app.Activity
+import android.content.Context
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
+import com.bhakti.app.BuildConfig
+import com.bhakti.app.core.firebase.FirebaseConfig
 import com.bhakti.app.data.model.AuthMethod
 import com.bhakti.app.data.model.User
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.tasks.await
 
-data class OtpRequest(
-    val phone: String,
-    val expiresAtEpochMs: Long,
-    val resendAvailableAtEpochMs: Long,
-    val attemptsRemaining: Int,
-    /** Only present because no SMS gateway is wired up yet; remove once one is. */
-    val devHint: String
-)
+/** Thrown when the user backs out of the Google account picker - not an error to show. */
+class SignInCancelledException : Exception("Sign-in cancelled")
 
-/**
- * Wraps both login paths from the PRD. The fake implementation below owns
- * real OTP business rules (expiry, resend cooldown, attempt limits) so only
- * the delivery mechanism (SMS gateway, Google Sign-In SDK) needs swapping
- * out later - the interface and screens don't change.
- */
 interface AuthRepository {
-    suspend fun signInWithGoogle(): Result<User>
-    suspend fun requestOtp(phone: String): Result<OtpRequest>
-    suspend fun resendOtp(phone: String): Result<OtpRequest>
-    suspend fun verifyOtp(phone: String, code: String): Result<User>
+    /** Shows the Google account picker; needs an Activity to host it. */
+    suspend fun signInWithGoogle(activity: Activity): Result<User>
+
+    /** Firebase uid of the signed-in user, or null. */
+    fun currentUserId(): String?
+
     suspend fun signOut()
 }
 
-class FakeAuthRepository : AuthRepository {
+/**
+ * Google sign-in via Credential Manager, exchanged for a Firebase Auth
+ * session. The Firebase uid is what the payment functions tie a
+ * subscription to (see functions/index.js).
+ */
+class FirebaseAuthRepository(private val context: Context) : AuthRepository {
 
-    private data class OtpSession(
-        val code: String,
-        val expiresAt: Long,
-        val resendAvailableAt: Long,
-        var attemptsUsed: Int
-    )
+    private val auth get() = FirebaseConfig.auth(context)
 
-    private val otpExpiryMs = 2 * 60 * 1000L
-    private val resendCooldownMs = 30 * 1000L
-    private val maxAttempts = 5
-    private val sessions = mutableMapOf<String, OtpSession>()
+    override suspend fun signInWithGoogle(activity: Activity): Result<User> = runCatching {
+        check(BuildConfig.GOOGLE_WEB_CLIENT_ID.isNotBlank()) {
+            "Google sign-in isn't configured for this build (webClientId missing from firebase.properties)."
+        }
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(GetSignInWithGoogleOption.Builder(BuildConfig.GOOGLE_WEB_CLIENT_ID).build())
+            .build()
 
-    override suspend fun signInWithGoogle(): Result<User> {
-        delay(700)
-        return Result.success(
-            User(
-                id = "google-${System.currentTimeMillis()}",
-                displayName = "Bhakt",
-                email = "devotee@gmail.com",
-                authMethod = AuthMethod.GOOGLE,
-                isNewAccount = true
-            )
+        val credential = try {
+            CredentialManager.create(activity).getCredential(activity, request).credential
+        } catch (e: GetCredentialCancellationException) {
+            throw SignInCancelledException()
+        } catch (e: NoCredentialException) {
+            throw IllegalStateException("No Google account found on this phone. Add one in Settings and try again.")
+        } catch (e: GetCredentialException) {
+            throw IllegalStateException("Google sign-in failed. Please try again.", e)
+        }
+
+        check(credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            "Unexpected sign-in response. Please try again."
+        }
+        val idToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+        val firebaseUser = auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)).await().user
+            ?: error("Google sign-in failed. Please try again.")
+
+        User(
+            id = firebaseUser.uid,
+            displayName = firebaseUser.displayName?.takeIf { it.isNotBlank() } ?: "Bhakt",
+            email = firebaseUser.email,
+            authMethod = AuthMethod.GOOGLE,
+            isNewAccount = false
         )
     }
 
-    override suspend fun requestOtp(phone: String): Result<OtpRequest> {
-        if (!phone.matches(Regex("^[6-9]\\d{9}$"))) {
-            return Result.failure(IllegalArgumentException("Enter a valid 10-digit mobile number"))
-        }
-        delay(500)
-        val now = System.currentTimeMillis()
-        val existing = sessions[phone]
-        if (existing != null && now < existing.resendAvailableAt) {
-            return Result.failure(IllegalStateException("Please wait before requesting another OTP"))
-        }
-        val code = (100000..999999).random().toString()
-        sessions[phone] = OtpSession(
-            code = code,
-            expiresAt = now + otpExpiryMs,
-            resendAvailableAt = now + resendCooldownMs,
-            attemptsUsed = 0
-        )
-        return Result.success(
-            OtpRequest(
-                phone = phone,
-                expiresAtEpochMs = now + otpExpiryMs,
-                resendAvailableAtEpochMs = now + resendCooldownMs,
-                attemptsRemaining = maxAttempts,
-                devHint = code
-            )
-        )
-    }
-
-    override suspend fun resendOtp(phone: String): Result<OtpRequest> = requestOtp(phone)
-
-    override suspend fun verifyOtp(phone: String, code: String): Result<User> {
-        delay(400)
-        val session = sessions[phone]
-            ?: return Result.failure(IllegalStateException("Request an OTP first"))
-        val now = System.currentTimeMillis()
-        if (now > session.expiresAt) {
-            sessions.remove(phone)
-            return Result.failure(IllegalStateException("OTP expired - request a new one"))
-        }
-        if (session.attemptsUsed >= maxAttempts) {
-            sessions.remove(phone)
-            return Result.failure(IllegalStateException("Too many attempts - request a new OTP"))
-        }
-        session.attemptsUsed++
-        if (code != session.code) {
-            val left = maxAttempts - session.attemptsUsed
-            return Result.failure(IllegalArgumentException("Incorrect OTP, $left attempt(s) left"))
-        }
-        sessions.remove(phone)
-        return Result.success(
-            User(
-                id = "otp-$phone",
-                displayName = "Bhakt",
-                phone = phone,
-                authMethod = AuthMethod.MOBILE_OTP,
-                isNewAccount = true
-            )
-        )
-    }
+    override fun currentUserId(): String? = auth.currentUser?.uid
 
     override suspend fun signOut() {
-        sessions.clear()
+        auth.signOut()
+        // Forget the chosen account so the picker shows again next time.
+        runCatching { CredentialManager.create(context).clearCredentialState(ClearCredentialStateRequest()) }
+    }
+}
+
+/** Stand-in for builds without firebase.properties (fresh checkouts, CI). */
+class FakeAuthRepository : AuthRepository {
+    private var userId: String? = null
+
+    override suspend fun signInWithGoogle(activity: Activity): Result<User> {
+        delay(500)
+        val user = User(
+            id = "fake-google-user",
+            displayName = "Bhakt",
+            email = "devotee@gmail.com",
+            authMethod = AuthMethod.GOOGLE,
+            isNewAccount = false
+        )
+        userId = user.id
+        return Result.success(user)
+    }
+
+    override fun currentUserId(): String? = userId
+
+    override suspend fun signOut() {
+        userId = null
     }
 }

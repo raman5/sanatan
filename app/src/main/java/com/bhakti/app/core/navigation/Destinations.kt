@@ -13,8 +13,6 @@ import com.bhakti.app.data.model.ContentType
 object Routes {
     const val SPLASH = "splash"
     const val AUTH = "auth"
-    const val OTP = "otp/{phone}"
-    fun otp(phone: String) = "otp/$phone"
     const val PAYWALL = "paywall"
     /** After onboarding: the paywall only while subscriptions are switched on, else straight in. */
     val AFTER_ONBOARDING: String get() = if (BuildConfig.SUBSCRIPTIONS_ENABLED) PAYWALL else HOME

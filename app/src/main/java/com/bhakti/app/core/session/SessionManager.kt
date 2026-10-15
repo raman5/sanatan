@@ -41,8 +41,16 @@ data class SessionState(
     val japaHistory: Map<LocalDate, Int> = emptyMap()
 ) {
     val isLoggedIn: Boolean get() = user != null
-    val hasActiveAccess: Boolean get() =
-        subscription.status == SubscriptionStatus.ACTIVE || subscription.status == SubscriptionStatus.TRIAL
+    /**
+     * Mirrors the server's entitlement (see core/payments/EntitlementSync). A
+     * cancelled plan keeps access until the end of the period already paid for.
+     */
+    val hasActiveAccess: Boolean get() = when (subscription.status) {
+        SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL, SubscriptionStatus.PAST_DUE -> true
+        SubscriptionStatus.CANCELLED -> subscription.renewalDateIso
+            ?.let { runCatching { !LocalDate.parse(it).isBefore(LocalDate.now()) }.getOrNull() } == true
+        SubscriptionStatus.NONE -> false
+    }
 
     companion object {
         // Kept as plain ids (not a reference to feature.home.RoutineModule) so core/session
@@ -227,8 +235,17 @@ class SessionManager(private val context: Context) {
         }
     }
 
+    /**
+     * Forgets the account and its subscription. Routine, japa and favourites
+     * stay - they belong to this phone, not to the account.
+     */
     suspend fun signOut() {
-        context.dataStore.edit { it.clear() }
+        context.dataStore.edit { prefs ->
+            listOf(
+                Keys.USER_ID, Keys.USER_NAME, Keys.USER_EMAIL, Keys.USER_PHONE, Keys.AUTH_METHOD,
+                Keys.PLAN_ID, Keys.SUB_STATUS, Keys.RENEWAL_DATE, Keys.MANDATE_ID
+            ).forEach { prefs.remove(it) }
+        }
     }
 
     suspend fun updateDisplayName(name: String) {
@@ -237,10 +254,10 @@ class SessionManager(private val context: Context) {
 
     suspend fun saveSubscription(subscription: Subscription) {
         context.dataStore.edit { prefs ->
-            subscription.planId?.let { prefs[Keys.PLAN_ID] = it }
+            subscription.planId?.let { prefs[Keys.PLAN_ID] = it } ?: prefs.remove(Keys.PLAN_ID)
             prefs[Keys.SUB_STATUS] = subscription.status.name
-            subscription.renewalDateIso?.let { prefs[Keys.RENEWAL_DATE] = it }
-            subscription.mandateId?.let { prefs[Keys.MANDATE_ID] = it }
+            subscription.renewalDateIso?.let { prefs[Keys.RENEWAL_DATE] = it } ?: prefs.remove(Keys.RENEWAL_DATE)
+            subscription.mandateId?.let { prefs[Keys.MANDATE_ID] = it } ?: prefs.remove(Keys.MANDATE_ID)
         }
     }
 

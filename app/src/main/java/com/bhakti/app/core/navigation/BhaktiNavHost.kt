@@ -17,7 +17,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bhakti.app.feature.auth.AuthScreen
-import com.bhakti.app.feature.auth.OtpScreen
 import com.bhakti.app.feature.explore.ContentDetailScreen
 import com.bhakti.app.feature.explore.ExploreScreen
 import com.bhakti.app.feature.explore.MantraListScreen
@@ -101,12 +100,6 @@ fun BhaktiApp(
         ) {
             composable(Routes.SPLASH) { SplashScreen(navController) }
             composable(Routes.AUTH) { AuthScreen(navController) }
-            composable(
-                Routes.OTP,
-                arguments = listOf(navArgument("phone") { type = NavType.StringType })
-            ) { entry ->
-                OtpScreen(navController, phone = entry.arguments?.getString("phone").orEmpty())
-            }
             composable(Routes.PAYWALL) { PaywallScreen(navController) }
             composable(
                 Routes.PAYMENT,
